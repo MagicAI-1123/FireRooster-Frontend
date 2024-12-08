@@ -14,6 +14,8 @@ export default function Page() {
   const [page, setPage] = useState(pageInfo?.pageNo || 0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCounty, setSelectedCounty] = useState("");
 
   const {
     headSearch,
@@ -113,6 +115,14 @@ export default function Page() {
     setCurrentStars(index);
   }
 
+  const handleStateChange = (event: SelectChangeEvent) => {
+    setSelectedState(event.target.value);
+  };
+
+  const handleCountyChange = (event: SelectChangeEvent) => {
+    setSelectedCounty(event.target.value);
+  };
+
   return (
     <>
       <AlertPage
@@ -135,6 +145,10 @@ export default function Page() {
         selectedFrom={selectedFrom}
         selectedTo={selectedTo}
         handleDateChange={handleDateChange}
+        selectedState={selectedState}
+        selectedCounty={selectedCounty}
+        handleStateChange={handleStateChange}
+        handleCountyChange={handleCountyChange}
       />
     </>
   );

@@ -21,6 +21,8 @@ export default function Page() {
   const [selectedTo, setSelectedTo] = useState<Date | null>(null);
   const [filterAlert, setFilterAlert] = useState("ALL");
   const {currentStars, setCurrentStars} = useStore();
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCounty, setSelectedCounty] = useState("");
 
   const fetchAlertsData = useCallback(async () => {
     const res = await alertService.getAllAlerts({
@@ -88,6 +90,14 @@ export default function Page() {
     setCurrentStars(index);
   }
 
+  const handleStateChange = (event: SelectChangeEvent) => {
+    setSelectedState(event.target.value);
+  };
+
+  const handleCountyChange = (event: SelectChangeEvent) => {
+    setSelectedCounty(event.target.value);
+  };
+
   return (
     <>
       <AlertPage
@@ -111,6 +121,10 @@ export default function Page() {
         selectedTo={selectedTo}
         handleDateChange={handleDateChange}
         handleInfoChange={handleInfoChange}
+        selectedState={selectedState}
+        selectedCounty={selectedCounty}
+        handleStateChange={handleStateChange}
+        handleCountyChange={handleCountyChange}
       />
     </>
   );

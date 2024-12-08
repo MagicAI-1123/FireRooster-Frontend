@@ -75,6 +75,10 @@ interface AlertPageProps {
     type: "from" | "to",
     date: Date
   ) => void;
+  selectedState: string;
+  selectedCounty: string;
+  handleStateChange: (event: SelectChangeEvent) => void;
+  handleCountyChange: (event: SelectChangeEvent) => void;
 }
 
 export function AlertPage({
@@ -98,6 +102,10 @@ export function AlertPage({
   selectedFrom,
   selectedTo,
   handleDateChange,
+  selectedState,
+  selectedCounty,
+  handleStateChange,
+  handleCountyChange,
 }: AlertPageProps) {
   const router = useRouter();
   const { isAuth } = useCheckAuth();
@@ -303,8 +311,8 @@ export function AlertPage({
         ) : (
           <Grid container spacing={2} mt={1}>
             {/* Desktop Filters */}
-            {/* Headline Search */}
-            <Grid item xs={12} sm={6} md={4} lg={3}>
+            {/* First Row - 5 items */}
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <FormControl size="small" fullWidth>
                 <TextField
                   size="small"
@@ -315,8 +323,7 @@ export function AlertPage({
                 />
               </FormControl>
             </Grid>
-            {/* Description Search */}
-            <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <FormControl size="small" fullWidth>
                 <TextField
                   size="small"
@@ -327,9 +334,8 @@ export function AlertPage({
                 />
               </FormControl>
             </Grid>
-            {/* Alert Filter */}
             {scanner_id === undefined && (
-              <Grid item xs={12} sm={6} md={4} lg={3}>
+              <Grid item xs={12} sm={6} md={4} lg={2.4}>
                 <FormControl size="small" fullWidth>
                   <InputLabel id="alert-filter-label">Select alert</InputLabel>
                   <Select
@@ -372,27 +378,37 @@ export function AlertPage({
                 </FormControl>
               </Grid>
             )}
-            {/* Date Pickers */}
-            <Grid item xs={12} sm={6} md={4} lg={3}>  
-              <FormControl size="small" fullWidth>  
-                <TextField  
-                  size="small"  
-                  onChange={handleAlertIdSearchChange}  
-                  value={alertIdSearch.toString()} // Convert number to string for display   
-                  name="alertIdSearch"  
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
+              <FormControl size="small" fullWidth>
+                <TextField
+                  size="small"
+                  onChange={handleAlertIdSearchChange}
+                  value={alertIdSearch.toString()}
+                  name="alertIdSearch"
                   label="Search Alert ID"
-                  InputProps={{  
-                    inputProps: { pattern: "[0-9]*", inputMode: "numeric"  } // This pattern limits the input to numbers  
-                  }}  
-                />  
-              </FormControl>  
-            </Grid>  
-            <Grid item xs={12} sm={6} md={4} lg={3}>
+                  InputProps={{
+                    inputProps: { pattern: "[0-9]*", inputMode: "numeric" }
+                  }}
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
+              <Rating
+                name="alert-rating"
+                value={currentStars}
+                onChange={(event, newValue) => {
+                  handleClickStars(newValue || 0);
+                }}
+                max={starCount}
+                sx={{marginTop: "8px"}}
+              />
+            </Grid>
+
+            {/* Second Row - 5 items */}
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <DatePicker
                 selected={selectedFrom}
-                onChange={(date, e) =>
-                  handleDateChange(e, "from", date as Date)
-                }
+                onChange={(date, e) => handleDateChange(e, "from", date as Date)}
                 placeholderText="From"
                 isClearable
                 customInput={
@@ -405,12 +421,10 @@ export function AlertPage({
                 }
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <DatePicker
                 selected={selectedTo}
-                onChange={(date, e) =>
-                  handleDateChange(e, "to", date as Date)
-                }
+                onChange={(date, e) => handleDateChange(e, "to", date as Date)}
                 placeholderText="To"
                 isClearable
                 customInput={
@@ -423,22 +437,38 @@ export function AlertPage({
                 }
               />
             </Grid>
-            {/* Rating Filter */}
-            <Grid item xs={12} sm={6} md={4} lg={3}>
-              <Rating
-                name="alert-rating"
-                value={currentStars}
-                onChange={(event, newValue) => {
-                  handleClickStars(newValue || 0);
-                }}
-                max={starCount}
-                sx={{marginTop: "8px"}}
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>State</InputLabel>
+                <Select
+                  value={selectedState}
+                  onChange={handleStateChange}
+                  label="State"
+                >
+                  <MenuItem value="">All States</MenuItem>
+                  {/* Add your state options here */}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>County</InputLabel>
+                <Select
+                  value={selectedCounty}
+                  onChange={handleCountyChange}
+                  label="County"
+                >
+                  <MenuItem value="">All Counties</MenuItem>
+                  {/* Add your county options here */}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={2.4}>
+              <Json2CSV 
+                isMobile={isMobile}
+                data={data}
               />
             </Grid>
-            <Json2CSV 
-              isMobile={isMobile}
-              data={data}
-            />
           </Grid>
         )}
       </div>
