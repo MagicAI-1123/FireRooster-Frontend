@@ -1,5 +1,5 @@
 "use client";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useCallback } from "react";
 import { Category } from "@/services/types/settings.type";
 import { settingsService } from "@/services/settings";
 import { FilterPage } from "@/components/filter/FilterPage";
@@ -11,11 +11,7 @@ export default function Page() {
   const [category, setCategory] = useState<string>("");
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchAlertsData(category);
-  }, [page, rowsPerPage, search]);
-
-  const fetchAlertsData = async (category: string) => {
+  const fetchAlertsData = useCallback(async (category: string) => {
     try {
       const res = await settingsService.getSubCategoriesByCategory({
         category: String(category == "ALL" ? "" : category),
@@ -31,7 +27,11 @@ export default function Page() {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, [search]);
+
+  useEffect(() => {
+    fetchAlertsData(category);
+  }, [page, rowsPerPage, search, category, fetchAlertsData]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;

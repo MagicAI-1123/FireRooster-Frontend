@@ -4,14 +4,14 @@
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import StoreProvider from "@/store/StoreProvider";
 import { useCheckAuth } from "@/hooks/useCheckAuth";
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import accountService from "@/services/account";
 import { useRouter } from "next/navigation";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     console.log("here")
     try {
         const resp = await accountService.getProfile();
@@ -25,10 +25,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         }
       }
     console.log("end")
-  }
+  }, [router]);
+
   useEffect(() => {
     fetchProfile()
-  }, [])
+  }, [fetchProfile]);
 
   return (
     <StoreProvider>

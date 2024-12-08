@@ -21,7 +21,7 @@ import {
   Rating,
 } from "@mui/material";
 import { useParams } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { alertService } from "@/services/alerts";
 import OpenMapButton from "@/components/googlemap/openMapButton";
 import {
@@ -35,6 +35,7 @@ import {
 } from "@mui/icons-material";
 import { transcriptService } from "@/services/transcript";
 import ModalComponent from "@/components/alert/TranscribeModal";
+import Image from "next/image";
 
 interface ContactInfo {
   past_info: ResidentInfo[];
@@ -123,10 +124,24 @@ export default function Page() {
     setLoading(false);
   };
 
+  const fetchAlertsData = useCallback(async () => {
+    const res = await alertService.getAlertsById({
+      alert_id: Number(aid),
+      scanner_id: Number(id),
+    });
+    setAlert(res.alert);
+    setAddresses(res.addresses);
+    setScanner(res.scanner);
+    setAudio(res.audio);
+    setWhisperTranscript(res.audio.context);
+    setAssemblyTranscript(res.audio.assembly_transcript);
+    setClearedTranscript(res.audio.cleared_context);
+  }, [aid, id]);
+
   useEffect(() => {
     fetchAlertsData();
     fetchPrompt();
-  }, [id, aid]);
+  }, [id, aid, fetchAlertsData]);
 
   useEffect(() => {
     if (audio?.file_name) {
@@ -135,22 +150,6 @@ export default function Page() {
       );
     }
   }, [audio]);
-
-  const fetchAlertsData = async () => {
-    const res = await alertService.getAlertsById({
-      alert_id: Number(aid),
-      scanner_id: Number(id),
-    });
-    setAlert(res.alert);
-    setAddresses(res.addresses);
-    setScanner(res.scanner);
-
-    setAudio(res.audio);
-
-    setWhisperTranscript(res.audio.context);
-    setAssemblyTranscript(res.audio.assembly_transcript);
-    setClearedTranscript(res.audio.cleared_context);
-  };
 
   const fetchPrompt = async () => {
     setLoading(true);
@@ -355,10 +354,22 @@ export default function Page() {
             <Typography variant="h6" component="p">
               <span>Location</span>
               <IconButton color="primary">
-                <img src='/Approved not pushed.png' className="mb-1" height={24} width={24}></img>
+                <Image 
+                  src='/Approved not pushed.png' 
+                  alt="Approve"
+                  width={24} 
+                  height={24}
+                  className="mb-1"
+                />
               </IconButton>
               <IconButton color="primary" sx={{marginLeft: "auto"}}>
-              <img src='/Disapproved not pushed.png' className="mb-1" height={24} width={24}></img>
+                <Image 
+                  src='/Disapproved not pushed.png'
+                  alt="Disapprove" 
+                  width={24} 
+                  height={24}
+                  className="mb-1"
+                />
               </IconButton>
             </Typography>
 
@@ -434,7 +445,7 @@ export default function Page() {
                                     onClick={() => unlockContactInfo(addr.id)}
                                     color="primary"
                                   >
-                                    <img
+                                    <Image
                                       src="/unlock.png"
                                       alt="Unlock"
                                       width={24}
@@ -444,7 +455,7 @@ export default function Page() {
                                 )
                               ) : (
                                 <IconButton disabled>
-                                  <img
+                                  <Image
                                     src="/loading.png"
                                     alt="Loading"
                                     width={24}
@@ -636,7 +647,7 @@ export default function Page() {
                                         onClick={() => unlockContactInfo(addr.id)}
                                         color="primary"
                                       >
-                                        <img
+                                        <Image
                                           src="/unlock.png"
                                           alt="Unlock"
                                           width={24}
@@ -646,7 +657,7 @@ export default function Page() {
                                     )
                                   ) : (
                                     <IconButton disabled>
-                                      <img
+                                      <Image
                                         src="/loading.png"
                                         alt="Loading"
                                         width={24}

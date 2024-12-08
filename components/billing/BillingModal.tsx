@@ -8,7 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import Typography from "@mui/material/Typography";
 import { billingService } from "@/services/billing";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Alert,
   Checkbox,
@@ -109,7 +109,20 @@ export function BillingModal({ handleClose, type }: IBillingModal) {
 
     setCounties(countyArr);
     setCountiesObject(obj);
-  }, [selectedStates]);
+  }, [selectedStates, stateObject]);
+
+  const fetchAllScanners = useCallback(async () => {
+    const res = await scannerService.getAllScanners({
+      limit: rowsPerPage,
+      page: page + 1,
+      ...(selectedCounties.length && {
+        county_id: selectedCounties.map(Number),
+      }),
+      ...(selectedStates.length && { state_id: selectedStates.map(Number) }),
+    });
+    setTotalPage(res.pagination.total);
+    setData(res.data);
+  }, [rowsPerPage, page, selectedCounties, selectedStates]);
 
   useEffect(() => {
     if (!selectedStates.length && !selectedCounties.length) {
@@ -119,7 +132,7 @@ export function BillingModal({ handleClose, type }: IBillingModal) {
     } else if (selectedStates.length) {
       fetchAllScanners();
     }
-  }, [page, rowsPerPage, selectedStates, selectedCounties]);
+  }, [page, rowsPerPage, selectedStates, selectedCounties, fetchAllScanners]);
 
   const fetchStates = async () => {
     const res = await billingService.getStateList();
@@ -176,19 +189,6 @@ export function BillingModal({ handleClose, type }: IBillingModal) {
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
-
-  const fetchAllScanners = async () => {
-    const res = await scannerService.getAllScanners({
-      limit: rowsPerPage,
-      page: page + 1,
-      ...(selectedCounties.length && {
-        county_id: selectedCounties.map(Number),
-      }),
-      ...(selectedStates.length && { state_id: selectedStates.map(Number) }),
-    });
-    setTotalPage(res.pagination.total);
-    setData(res.data);
   };
 
   const handleSelectScanner = (id: number, checked: boolean) => {

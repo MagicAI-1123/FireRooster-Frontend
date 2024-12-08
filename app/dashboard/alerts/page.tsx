@@ -6,7 +6,7 @@ import { AlertObject } from "@/services/types/alert.type";
 import { setPageInfo } from "@/store/slices/scanner.slice";
 import { useStore } from "@/store/StoreProvider";
 import { SelectChangeEvent } from "@mui/material";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useCallback } from "react";
 
 export default function Page() {
   const [data, setData] = useState<AlertObject[]>([]);
@@ -35,22 +35,7 @@ export default function Page() {
 
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    fetchAlertsData();
-  }, [
-    page,
-    rowsPerPage,
-    totalPages,
-    headSearch,
-    decSearch,
-    currentCategory,
-    selectedFrom,
-    selectedTo,
-    currentStars,
-    alertIdSearch
-  ]);
-
-  const fetchAlertsData = async () => {
+  const fetchAlertsData = useCallback(async () => {
     const res = await alertService.getAllAlerts({
       limit: rowsPerPage,
       page: page + 1,
@@ -64,7 +49,21 @@ export default function Page() {
     });
     setData(res.alerts);
     setTotalPages(res.pagination.total);
-  };
+  }, [
+    rowsPerPage,
+    page,
+    headSearch,
+    decSearch,
+    alertIdSearch,
+    currentCategory,
+    selectedFrom,
+    selectedTo,
+    currentStars
+  ]);
+
+  useEffect(() => {
+    fetchAlertsData();
+  }, [fetchAlertsData]);
 
   const handleInfoChange = (event: SelectChangeEvent) => {
     const fAlert = event.target.value;

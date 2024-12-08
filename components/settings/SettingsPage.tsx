@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { useStore } from "@/store/StoreProvider";
 import { Category } from "@/services/types/settings.type";
 import Link from "next/link";
+import Image from "next/image";
 
 interface AlertPageProps {
   data: Category[];
@@ -61,7 +62,7 @@ export function SettingsPage({
 
   useEffect(() => {
     if (!isAuth) router.push("/auth/login");
-  }, [isAuth]);
+  }, [isAuth, router]);
 
   return (
     <>
@@ -244,7 +245,12 @@ export function SettingsPage({
                       {
                         (row.category == "Miscellaneous (MISC)") && ( <MiscellaneousServices color="warning"/>)
                       } */}
-                      <img src={'/logo_Icon.png'} width={"20px"} height={"20px"}/>
+                      <Image 
+                        src="/logo_Icon.png" 
+                        alt="Logo Icon" 
+                        width={20} 
+                        height={20}
+                      />
                     </TableCell>
                     <TableCell align="center">{row.sub_category}</TableCell>
                     <TableCell scope="row">{row.id}</TableCell>

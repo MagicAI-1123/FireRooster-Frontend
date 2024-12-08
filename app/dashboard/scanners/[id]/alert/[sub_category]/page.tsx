@@ -1,7 +1,7 @@
 "use client";
 import { AlertPage } from "@/components/alert/AlertPage";
 import { useParams } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useCallback } from "react";
 import { AlertObject } from "@/services/types/alert.type";
 import { alertService } from "@/services/alerts";
 import { SelectChangeEvent } from "@mui/material";
@@ -22,11 +22,7 @@ export default function Page() {
   const [filterAlert, setFilterAlert] = useState("ALL");
   const {currentStars, setCurrentStars} = useStore();
 
-  useEffect(() => {
-    fetchAlertsData();
-  }, [page, rowsPerPage, headSearch, decSearch, currentStars, alertIdSearch]);
-
-  const fetchAlertsData = async () => {
+  const fetchAlertsData = useCallback(async () => {
     const res = await alertService.getAllAlerts({
       limit: rowsPerPage,
       page: page + 1,
@@ -39,7 +35,11 @@ export default function Page() {
     });
     setData(res.alerts);
     setTotalPages(res.pagination.total);
-  };
+  }, [rowsPerPage, page, id, sub_category, headSearch, decSearch, currentStars, alertIdSearch]);
+
+  useEffect(() => {
+    fetchAlertsData();
+  }, [fetchAlertsData]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);

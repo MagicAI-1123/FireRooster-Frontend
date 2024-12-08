@@ -39,7 +39,7 @@ import {
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/store.hooks";
 import { setPageInfo } from "@/store/slices/scanner.slice";
 import { useStore } from "@/store/StoreProvider";
@@ -97,13 +97,43 @@ export default function Page() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const fetchStates = useCallback(async () => {
+    const res = await billingService.getStateList();
+    setStates(res);
+  }, []);
+
+  const fetchAllScanners = useCallback(async () => {
+    const res = await scannerService.getAllScanners({
+      limit: rowsPerPage,
+      page: page + 1,
+      ...(selectedCounty && { county_id: [Number(selectedCounty)] }),
+      ...(selectedState && { state_id: [Number(selectedState.state_id)] }),
+      search,
+    });
+    setTotalPage(res.pagination.total);
+    setData(res.data);
+  }, [rowsPerPage, page, selectedCounty, selectedState, search]);
+
+  const fetchMyScanners = useCallback(async () => {
+    const res = await scannerService.getMyScanners({
+      limit: rowsPerPage,
+      page: page + 1,
+      ...(selectedCounty && { county_id: [Number(selectedCounty)] }),
+      ...(selectedState && { state_id: [Number(selectedState.state_id)] }),
+      search,
+    });
+    setTotalPage(res.pagination.total);
+    setData(res.data);
+    setStates(res.states);
+  }, [rowsPerPage, page, selectedCounty, selectedState, search]);
+
   useEffect(() => {
     if (value === "allscanners") {
       fetchAllScanners();
     } else {
       fetchMyScanners();
     }
-  }, [page, rowsPerPage, selectedCounty, selectedState, search]);
+  }, [page, rowsPerPage, selectedCounty, selectedState, search, value, fetchAllScanners, fetchMyScanners]);
 
   useEffect(() => {
     if (value === "allscanners") {
@@ -112,7 +142,7 @@ export default function Page() {
     } else {
       fetchMyScanners();
     }
-  }, [value]);
+  }, [value, fetchStates, fetchAllScanners, fetchMyScanners]);
 
   useEffect(() => {
     fetchScraperStatus();
@@ -121,11 +151,6 @@ export default function Page() {
   const fetchScraperStatus = async () => {
     const res = await scannerService.getScraperStatus()
     setScraperStatus(res.scraper_status);
-  };
-
-  const fetchStates = async () => {
-    const res = await billingService.getStateList();
-    setStates(res);
   };
 
   const handleStateChange = (e: SelectChangeEvent) => {
@@ -172,31 +197,6 @@ export default function Page() {
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearch(value);
-  };
-
-  const fetchAllScanners = async () => {
-    const res = await scannerService.getAllScanners({
-      limit: rowsPerPage,
-      page: page + 1,
-      ...(selectedCounty && { county_id: [Number(selectedCounty)] }),
-      ...(selectedState && { state_id: [Number(selectedState.state_id)] }),
-      search,
-    });
-    setTotalPage(res.pagination.total);
-    setData(res.data);
-  };
-
-  const fetchMyScanners = async () => {
-    const res = await scannerService.getMyScanners({
-      limit: rowsPerPage,
-      page: page + 1,
-      ...(selectedCounty && { county_id: [Number(selectedCounty)] }),
-      ...(selectedState && { state_id: [Number(selectedState.state_id)] }),
-      search,
-    });
-    setTotalPage(res.pagination.total);
-    setData(res.data);
-    setStates(res.states);
   };
 
   const handleDelete = async (scanner_id: number) => {

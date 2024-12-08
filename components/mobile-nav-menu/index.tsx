@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/hooks/store.hooks";
 import { setPageInfo } from "@/store/slices/scanner.slice";
+import Image from "next/image";
 
 const MobileNavMenu = () => {
   const path = usePathname();
@@ -36,10 +37,16 @@ const MobileNavMenu = () => {
   };
 
   return (
-    <div className="nav-menu block lg:hidden w-full bg-gray-800 text-white flex items-center p-4">
+    <div className="nav-menu lg:hidden w-full bg-gray-800 text-white flex items-center p-4">
       {/* Logo */}
       <Link href="/" className="mr-4">
-        <img src="/white_logo.png" alt="Logo" className="h-12" />
+        <Image 
+          src="/white_logo.png" 
+          alt="Logo" 
+          width={48} 
+          height={48} 
+          className="h-12" 
+        />
       </Link>
 
       {/* Spacer */}

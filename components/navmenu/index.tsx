@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/hooks/store.hooks";
 import { setPageInfo } from "@/store/slices/scanner.slice";
+import Image from "next/image";
 
 const Navmenu = () => {
   const path = usePathname();
@@ -31,7 +32,13 @@ const Navmenu = () => {
     <div className="nav-menu hidden lg:flex bg-gray-800 text-white flex-col p-6">
       {/* Logo */}
       <div className="flex items-center justify-center mb-8">
-        <img src={"/white_logo.png"} alt="Logo" className="w-32 h-auto" />
+        <Image 
+          src="/white_logo.png" 
+          alt="Logo" 
+          width={128} 
+          height={128} 
+          className="w-32 h-auto" 
+        />
       </div>
 
       {/* Navigation */}

@@ -122,7 +122,7 @@ export default function Page() {
     } catch (error) {
       console.error("Error saving data:", error);
     }
-  }, [])
+  }, [reset])
 
   useEffect(() => {
     if (selectedState.toString().length > 0 && selectedCounty.toString().length > 0)

@@ -1,6 +1,6 @@
 "use client";
 import { SettingsPage } from "@/components/settings/SettingsPage";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Category } from "@/services/types/settings.type";
 import { settingsService } from "@/services/settings";
 import { useParams } from "next/navigation";
@@ -12,11 +12,7 @@ export default function Page() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [category, setCategory] = useState<string>("");
 
-  useEffect(() => {
-    fetchAlertsData(category);
-  }, [page, rowsPerPage]);
-
-  const fetchAlertsData = async (category: string) => {
+  const fetchAlertsData = useCallback(async (category: string) => {
     try {
       const res = await settingsService.getSubCategoriesByCategory({
         category: String(category == "ALL" ? "" : category),
@@ -25,7 +21,11 @@ export default function Page() {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchAlertsData(category);
+  }, [page, rowsPerPage, category, fetchAlertsData]);
 
   return (
     <>

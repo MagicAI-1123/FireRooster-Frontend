@@ -106,7 +106,7 @@ export function AlertPage({
 
   useEffect(() => {
     if (!isAuth) router.push("/auth/login");
-  }, [isAuth]);
+  }, [isAuth, router]);
 
   const StyledTableRow = styled(TableRow)(({ color }) => ({
     td: { backgroundColor: color },
