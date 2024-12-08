@@ -1,5 +1,5 @@
 import apiClient from "../axios";
-import { IGetAlertsPayload, IGetAlertsResponse, IGetUnlockContactInfoPayload, IGetUnlockContactInfoResponse } from "./types/alert.type";
+import { IGetAlertsPayload, IGetAlertsResponse, IGetGranteesResponse, IGetUnlockContactInfoPayload, IGetUnlockContactInfoResponse } from "./types/alert.type";
 import {
   IGetAlertByIdPayload,
   IGetAlertByIdResponse,
@@ -36,6 +36,19 @@ export const alertService = {
     const endPoint = "/api/alerts/unlock-contact-info"
     try {
       const response = await apiClient.post<IGetUnlockContactInfoResponse>(
+        `${endPoint}`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async getGrantees(payload: IGetUnlockContactInfoPayload) {
+    const endPoint = "/api/alerts/get-grantee-info"
+    try {
+      const response = await apiClient.post<IGetGranteesResponse>(
         `${endPoint}`,
         payload
       );
