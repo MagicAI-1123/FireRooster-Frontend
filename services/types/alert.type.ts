@@ -30,6 +30,10 @@ export interface IGetUnlockContactInfoResponse {
   status: boolean;
   message: string;
 }
+export interface IGetGranteesResponse {
+  grantees: string;
+  type: string;
+}
 
 export interface Alert {
   id: number;
@@ -80,6 +84,7 @@ export interface AddressData {
   scanner_id: number | null;
   contact_info: ContactInfo;
   spokeo_status: number;
+  grantees: string;
 }
 
 export interface ResidentInfo {

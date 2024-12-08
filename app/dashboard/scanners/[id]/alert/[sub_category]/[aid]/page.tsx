@@ -26,6 +26,7 @@ import { alertService } from "@/services/alerts";
 import OpenMapButton from "@/components/googlemap/openMapButton";
 import {
   ExpandMore as ExpandMoreIcon,
+  Refresh as RefreshIcon,
   ThumbUp,
   ThumbDown,
   Star,
@@ -51,6 +52,7 @@ interface AddressData {
   scanner_id: number | null;
   contact_info: ContactInfo;
   spokeo_status: number;
+  grantees: string | null;
 }
 
 interface ResidentInfo {
@@ -111,8 +113,13 @@ export default function Page() {
 
   const unlockContactInfo = async (address_id: number) => {
     setLoading(true);
-    await alertService.unlockContactInfo({ address_id: address_id });
-    await fetchAlertsData();
+    const res = await alertService.getGrantees({ address_id: address_id });
+    if (res.grantees) {
+      if (res.type === "human") {
+        await alertService.unlockContactInfo({ address_id: address_id });
+      }
+      await fetchAlertsData();
+    }
     setLoading(false);
   };
 
@@ -257,6 +264,7 @@ export default function Page() {
                   sx={{ ml: 1 }}
                 >
                   <ExpandMoreIcon />
+
                 </IconButton>
                 <ModalComponent
                   isOpen={isModalOpen}
@@ -356,7 +364,7 @@ export default function Page() {
 
             <Divider />
 
-            <Box mt={2} display="flex" alignItems="center" flexWrap="wrap">
+            {/* <Box mt={2} display="flex" alignItems="center" flexWrap="wrap">
               <Typography variant="body1" component="span" sx={{ mr: 1 }}>
                 <strong>Known Address:</strong>
               </Typography>
@@ -367,7 +375,7 @@ export default function Page() {
               >
                 {alert?.address}
               </Typography>
-            </Box>
+            </Box> */}
 
             <Typography variant="body1" component="p" mt={2}>
               <strong>Possible Addresses:</strong>
@@ -382,10 +390,11 @@ export default function Page() {
                         <Card variant="outlined">
                           <CardContent>
                             <Typography variant="body2" color="textSecondary">
-                              <strong>ID:</strong> {index + 1}
+                              <strong>ID: </strong> {index + 1}
                             </Typography>
                             <Typography variant="body2" display="flex" color="textSecondary">
-                              <strong>Address: </strong> {addr.address}
+                              <strong>Address: </strong>{" "}
+                              {addr.address}
                               <Box sx={{marginTop: "-12px", marginLeft: "-50px"}}>
                                 <OpenMapButton address={addr.address}/>
                               </Box>
@@ -394,6 +403,10 @@ export default function Page() {
                               <strong>Accuracy Score:</strong>{" "}
                               {(addr.score * 100).toFixed(2)}%
                             </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              <strong>Grantees:</strong>{" "}
+                              {addr.grantees ? addr.grantees : "?"}
+                            </Typography>
                             {/* <Box mt={1}>
                             </Box> */}
                           </CardContent>
@@ -401,12 +414,21 @@ export default function Page() {
                             {addr.score === 1 && (
                               !loading ? (
                                 addr.spokeo_status ? (
-                                  <IconButton
-                                    onClick={() => handleRowClick(index)}
-                                    color="primary"
-                                  >
-                                    <ExpandMoreIcon />
-                                  </IconButton>
+                                  <>
+                                    <IconButton
+                                      onClick={() => handleRowClick(index)}
+                                      color="primary"
+                                    >
+                                      <ExpandMoreIcon />
+                                    </IconButton>
+                                    
+                                    <IconButton
+                                      onClick={() => unlockContactInfo(addr.id)}
+                                      color="primary"
+                                    >
+                                      <RefreshIcon />
+                                    </IconButton>
+                                  </>
                                 ) : (
                                   <IconButton
                                     onClick={() => unlockContactInfo(addr.id)}
@@ -557,6 +579,9 @@ export default function Page() {
                           <TableCell align="center">
                             <strong>Map</strong>
                           </TableCell>
+                          <TableCell align="center">
+                            <strong>Grantees</strong>
+                          </TableCell>
                           <TableCell align="center"></TableCell>
                         </TableRow>
                       </TableHead>
@@ -579,22 +604,33 @@ export default function Page() {
                                 <OpenMapButton address={addr.address} />
                               </TableCell>
                               <TableCell align="center">
+                                {addr.grantees ? addr.grantees : "?"}
+                              </TableCell>
+                              <TableCell align="center">
                                 {addr.score === 1 && (
                                   !loading ? (
                                     addr.spokeo_status ? (
-                                      <IconButton
-                                        onClick={() => handleRowClick(index)}
-                                        color="primary"
-                                      >
-                                        <ExpandMoreIcon
-                                          style={{
-                                            transform: expandedRows.includes(index)
-                                              ? "rotate(180deg)"
-                                              : "rotate(0deg)",
-                                            transition: "transform 0.3s",
-                                          }}
-                                        />
-                                      </IconButton>
+                                      <>
+                                        <IconButton
+                                          onClick={() => handleRowClick(index)}
+                                          color="primary"
+                                        >
+                                          <ExpandMoreIcon
+                                            style={{
+                                              transform: expandedRows.includes(index)
+                                                ? "rotate(180deg)"
+                                                : "rotate(0deg)",
+                                              transition: "transform 0.3s",
+                                            }}
+                                          />
+                                        </IconButton>
+                                        <IconButton
+                                          onClick={() => unlockContactInfo(addr.id)}
+                                          color="primary"
+                                        >
+                                          <RefreshIcon />
+                                        </IconButton>
+                                      </>
                                     ) : (
                                       <IconButton
                                         onClick={() => unlockContactInfo(addr.id)}

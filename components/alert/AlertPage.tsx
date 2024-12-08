@@ -231,6 +231,20 @@ export function AlertPage({
                     </FormControl>
                   </Grid>
                 )}
+                <Grid item xs={12}>  
+                  <FormControl size="small" fullWidth>  
+                    <TextField  
+                      size="small"  
+                      onChange={handleAlertIdSearchChange}  
+                      value={alertIdSearch.toString()} // Convert number to string for display   
+                      name="alertIdSearch"  
+                      label="Search Alert ID"
+                      InputProps={{  
+                        inputProps: { pattern: "[0-9]*", inputMode: "numeric"  } // This pattern limits the input to numbers  
+                      }}  
+                    />  
+                  </FormControl>  
+                </Grid>  
                 {/* Date Pickers */}
                 <Grid item xs={12}>
                   <DatePicker
@@ -459,7 +473,15 @@ export function AlertPage({
                       max={starCount}
                     />
                     <Typography variant="body2">
-                      Address: {row.alert.address}
+                      Address: {
+                        <div className="font-bold">
+                          {
+                            row.alert.address.length > 200
+                            ? row.alert.address.slice(0, 200) + "..."
+                            : row.alert.address
+                          }
+                        </div>
+                      }
                     </Typography>
                     <Box mt={1}>
                       <House />
@@ -639,7 +661,11 @@ export function AlertPage({
                       </Grid>
                     </TableCell>
                     <TableCell align="center" onClick={() => handleRowClick(row)}>
-                      <div className="font-bold">{row.alert.address}</div>
+                      <div className="font-bold">
+                        {row.alert.address.length > 200
+                          ? row.alert.address.slice(0, 200) + "..."
+                          : row.alert.address}
+                      </div>
                     </TableCell>
                     {/* <TableCell align="center" onClick={() => handleRowClick(row)}>
                       <House />
