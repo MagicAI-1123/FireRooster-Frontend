@@ -63,7 +63,6 @@ export default function Json2CSV({
               variant="contained"  
               color="primary"  
               onClick={handleExportToCSV}  
-              style={{ marginLeft: 16, marginTop:16 }} // Adjust the margin as needed  
               >  
               Export to CSV  
             </Button>  

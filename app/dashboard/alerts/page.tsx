@@ -14,8 +14,7 @@ export default function Page() {
   const [page, setPage] = useState(pageInfo?.pageNo || 0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedCounty, setSelectedCounty] = useState("");
+  const [countySearch, setCountySearch] = useState("");
 
   const {
     headSearch,
@@ -47,7 +46,8 @@ export default function Page() {
       category: String(currentCategory == "ALL" ? "" : currentCategory),
       selected_from: selectedFrom,
       selected_to: selectedTo,
-      stars: currentStars
+      stars: currentStars,
+      county: countySearch
     });
     setData(res.alerts);
     setTotalPages(res.pagination.total);
@@ -60,7 +60,8 @@ export default function Page() {
     currentCategory,
     selectedFrom,
     selectedTo,
-    currentStars
+    currentStars,
+    countySearch
   ]);
 
   useEffect(() => {
@@ -115,12 +116,8 @@ export default function Page() {
     setCurrentStars(index);
   }
 
-  const handleStateChange = (event: SelectChangeEvent) => {
-    setSelectedState(event.target.value);
-  };
-
-  const handleCountyChange = (event: SelectChangeEvent) => {
-    setSelectedCounty(event.target.value);
+  const handleCountyChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setCountySearch(event.target.value);
   };
 
   return (
@@ -145,10 +142,8 @@ export default function Page() {
         selectedFrom={selectedFrom}
         selectedTo={selectedTo}
         handleDateChange={handleDateChange}
-        selectedState={selectedState}
-        selectedCounty={selectedCounty}
-        handleStateChange={handleStateChange}
         handleCountyChange={handleCountyChange}
+        countySearch={countySearch}
       />
     </>
   );

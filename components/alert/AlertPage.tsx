@@ -40,7 +40,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { ChangeEvent, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { z } from "zod";
@@ -75,10 +75,8 @@ interface AlertPageProps {
     type: "from" | "to",
     date: Date
   ) => void;
-  selectedState: string;
-  selectedCounty: string;
-  handleStateChange: (event: SelectChangeEvent) => void;
-  handleCountyChange: (event: SelectChangeEvent) => void;
+  countySearch: string;
+  handleCountyChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
 export function AlertPage({
@@ -102,10 +100,8 @@ export function AlertPage({
   selectedFrom,
   selectedTo,
   handleDateChange,
-  selectedState,
-  selectedCounty,
-  handleStateChange,
   handleCountyChange,
+  countySearch,
 }: AlertPageProps) {
   const router = useRouter();
   const { isAuth } = useCheckAuth();
@@ -439,28 +435,13 @@ export function AlertPage({
             </Grid>
             <Grid item xs={12} sm={6} md={4} lg={2.4}>
               <FormControl size="small" fullWidth>
-                <InputLabel>State</InputLabel>
-                <Select
-                  value={selectedState}
-                  onChange={handleStateChange}
-                  label="State"
-                >
-                  <MenuItem value="">All States</MenuItem>
-                  {/* Add your state options here */}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} sm={6} md={4} lg={2.4}>
-              <FormControl size="small" fullWidth>
-                <InputLabel>County</InputLabel>
-                <Select
-                  value={selectedCounty}
+                <TextField
+                  size="small"
                   onChange={handleCountyChange}
-                  label="County"
-                >
-                  <MenuItem value="">All Counties</MenuItem>
-                  {/* Add your county options here */}
-                </Select>
+                  value={countySearch}
+                  name="countySearch"
+                  label="Search County"
+                />
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={6} md={4} lg={2.4}>

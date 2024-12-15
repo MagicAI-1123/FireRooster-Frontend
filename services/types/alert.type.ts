@@ -15,6 +15,7 @@ export interface IGetAlertsPayload extends Pagination {
   selected_from?: Date | null;
   selected_to?: Date | null;
   stars?: number;
+  county?: string;
 }
 
 export interface IGetAlertByIdPayload {
