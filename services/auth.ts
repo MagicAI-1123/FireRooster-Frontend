@@ -6,6 +6,10 @@ const BASE_URL = process.env.NEXT_PUBLIC_SERVER_BASE_URL;
 interface LoginData {
   email: String;
   password: String;
+  device?: string;
+  browser?: string;
+  os?: string | null;
+  ipaddress?: string;
 }
 
 interface SignupData {

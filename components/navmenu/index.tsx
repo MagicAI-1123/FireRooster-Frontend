@@ -11,6 +11,7 @@ import {
   User,
   Settings,
   HelpCircle,
+  Users,
 } from "react-feather";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/hooks/store.hooks";
@@ -110,6 +111,19 @@ const Navmenu = () => {
               >
                 <User className="mr-3" size={20} />
                 Profile
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/dashboard/userlist"
+                className={`flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+                  checkActiveTab(path, "userlist")
+                    ? "bg-gray-700"
+                    : "hover:bg-gray-700"
+                }`}
+              >
+                <Users className="mr-3" size={20} />
+                Userlist
               </Link>
             </li>
             <li>

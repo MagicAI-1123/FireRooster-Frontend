@@ -9,6 +9,8 @@ import authService from "@/services/auth";
 import { useRouter } from "next/navigation";
 import { useErrorMessage } from "@/hooks/useGlobalError";
 import { useState } from "react";
+import { useTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
 
 const signupSchema = z
   .object({
@@ -36,6 +38,8 @@ export default function Page() {
     resolver: zodResolver(signupSchema),
   });
   const router = useRouter();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [openSnack, setOpenSnack] = useState(false);
   const { errorMessage, handleError, clearErrorMessage } = useErrorMessage();
@@ -66,86 +70,98 @@ export default function Page() {
   };
 
   return (
-    <>
-      <div className="text-3xl font-bold mb-6">Sign up</div>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <TextField
-          {...register("first_name", { value: getValues("first_name") })}
-          error={Boolean(errors?.first_name?.message)}
-          variant="outlined"
-          label="First name"
-          helperText={errors?.first_name?.message}
-          onChange={(e) => setValue("first_name", e.target.value)}
-        />
-        <TextField
-          {...register("last_name", { value: getValues("last_name") })}
-          error={Boolean(errors?.last_name?.message)}
-          variant="outlined"
-          label="Last name"
-          helperText={errors?.last_name?.message}
-          onChange={(e) => setValue("last_name", e.target.value)}
-        />
-        <TextField
-          {...register("email", { value: getValues("email") })}
-          error={Boolean(errors?.email?.message)}
-          variant="outlined"
-          label="Email"
-          helperText={errors?.email?.message}
-          onChange={(e) => setValue("email", e.target.value)}
-        />
-        <TextField
-          {...register("password", { value: getValues("password") })}
-          error={Boolean(errors?.password?.message)}
-          variant="outlined"
-          label="Password"
-          type="password"
-          helperText={errors?.password?.message}
-          onChange={(e) => setValue("password", e.target.value)}
-        />
-        <TextField
-          {...register("password2", {
-            value: getValues("password2"),
-          })}
-          error={Boolean(errors?.password2?.message)}
-          variant="outlined"
-          label="Confirm password"
-          type="password"
-          helperText={errors?.password2?.message}
-          onChange={(e) => setValue("password2", e.target.value)}
-        />
-        <div className="text-lg">
-          By accessing this site, you agree to the{" "}
-          <a
-            className="text-gray-400 hover:underline hover:text-gray-500 mx-1"
-            href="#"
-          >
-            Terms of Service
-          </a>
-        </div>
-        <LoadingButton
-          sx={{
-            [`&:hover`]: { background: "rgba(30, 41, 59, 0.8)" },
-            background: "rgb(30, 41, 59)",
-            padding: "10px 20px",
-          }}
-          loading={isSubmitting}
-          variant="contained"
-          type="submit"
-        >
-          Sign up
-        </LoadingButton>
-        <div className="flex justify-between">
-          <div>
-            Already have an account?
-            <Link
-              className="text-gray-400 hover:underline hover:text-gray-500 mx-1"
-              href="login"
+    <div className={`flex flex-col items-center justify-center h-auto py-8 p-4 ${isMobile ? 'w-full' : 'w-[480px] mx-auto'}`}>
+      <div className="w-full bg-white rounded-lg shadow-md p-6">
+        <div className="text-2xl font-bold mb-4 text-center">Sign up</div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <TextField
+            {...register("first_name", { value: getValues("first_name") })}
+            error={Boolean(errors?.first_name?.message)}
+            variant="outlined"
+            label="First name"
+            helperText={errors?.first_name?.message}
+            onChange={(e) => setValue("first_name", e.target.value)}
+            fullWidth
+            size={isMobile ? "small" : "medium"}
+          />
+          <TextField
+            {...register("last_name", { value: getValues("last_name") })}
+            error={Boolean(errors?.last_name?.message)}
+            variant="outlined"
+            label="Last name"
+            helperText={errors?.last_name?.message}
+            onChange={(e) => setValue("last_name", e.target.value)}
+            fullWidth
+            size={isMobile ? "small" : "medium"}
+          />
+          <TextField
+            {...register("email", { value: getValues("email") })}
+            error={Boolean(errors?.email?.message)}
+            variant="outlined"
+            label="Email"
+            helperText={errors?.email?.message}
+            onChange={(e) => setValue("email", e.target.value)}
+            fullWidth
+            size={isMobile ? "small" : "medium"}
+          />
+          <TextField
+            {...register("password", { value: getValues("password") })}
+            error={Boolean(errors?.password?.message)}
+            variant="outlined"
+            label="Password"
+            type="password"
+            helperText={errors?.password?.message}
+            onChange={(e) => setValue("password", e.target.value)}
+            fullWidth
+            size={isMobile ? "small" : "medium"}
+          />
+          <TextField
+            {...register("password2", { value: getValues("password2") })}
+            error={Boolean(errors?.password2?.message)}
+            variant="outlined"
+            label="Confirm password"
+            type="password"
+            helperText={errors?.password2?.message}
+            onChange={(e) => setValue("password2", e.target.value)}
+            fullWidth
+            size={isMobile ? "small" : "medium"}
+          />
+          <div className="text-sm pt-1">
+            By accessing this site, you agree to the{" "}
+            <a
+              className="text-gray-400 hover:underline hover:text-gray-500"
+              href="#"
             >
-              Log in
-            </Link>
+              Terms of Service
+            </a>
           </div>
-        </div>
-      </form>
+          <LoadingButton
+            sx={{
+              [`&:hover`]: { background: "rgba(30, 41, 59, 0.8)" },
+              background: "rgb(30, 41, 59)",
+              padding: isMobile ? '8px 16px' : '10px 20px',
+              width: '100%',
+              marginTop: '4px',
+            }}
+            loading={isSubmitting}
+            variant="contained"
+            type="submit"
+          >
+            Sign up
+          </LoadingButton>
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0 pt-1">
+            <div>
+              Already have an account?
+              <Link
+                className="text-gray-400 hover:underline hover:text-gray-500 mx-1"
+                href="login"
+              >
+                Log in
+              </Link>
+            </div>
+          </div>
+        </form>
+      </div>
       {errorMessage && (
         <Snackbar
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -158,6 +174,7 @@ export default function Page() {
           </Alert>
         </Snackbar>
       )}
-    </>
+    </div>
   );
 }
+

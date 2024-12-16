@@ -1,20 +1,29 @@
 'use client';
-import { Alert, CircularProgress, Snackbar, TextField } from '@mui/material';
+import { Alert, CircularProgress, SelectChangeEvent, Snackbar, TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import authService from '@/services/auth';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useErrorMessage } from '@/hooks/useGlobalError';
 import { LoadingButton } from '@mui/lab';
 import { useAppDispatch } from '@/hooks/store.hooks';
 import { setUserData } from '@/store/slices/auth.slice';
+import { useTheme } from '@mui/material/styles';
+import { useMediaQuery } from '@mui/material';
+import { billingService } from '@/services/billing';
+import { State } from '@/services/types/billing.type';
+import { detectDevice } from '@/components/userlist/detectDevice';
+import { detectBrowser } from '@/components/userlist/detectDevice';
+import { getLocation } from '@/components/userlist/detectDevice';
+import { detectOS } from '@/components/userlist/detectDevice';
 
 const loginSchema = z.object({
     email: z.string().email('Please provide a valid email'),
     password: z.string().min(8, 'Password must be at least 8 characters long'),
+    
 });
 
 type TLoginSchema = z.infer<typeof loginSchema>;
@@ -33,14 +42,67 @@ export default function Page() {
 
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [openSnack, setOpenSnack] = useState(false);
     const { errorMessage, handleError, clearErrorMessage } = useErrorMessage();
-    console.log('BASE_URL', process.env.NEXT_PUBLIC_SERVER_BASE_URL);
+
+    const [isMobileWidth, setIsMobileWidth] = useState(false);
+
+    const [states, setStates] = useState<State[]>([]);
+    const [selectedState, setSelectedState] = useState<State | "">("");
+    const [selectedCounty, setSelectedCounty] = useState<string | "">("");
+    const [uploadDisabled, setUploadDisabled] = useState(false);
+
+    const fetchStates = async () => {
+        const res = await billingService.getStateList();
+        setStates(res);
+    };
+
+    const handleStateChange = (e: SelectChangeEvent) => {  
+        const id = e.target.value;  
+        const state = states.find((item) => item.state_id === id);  
+  
+        // If state is undefined, setSelectedCounty to "" and provide a default value for setSelectedState  
+        if (!state) {  
+            setSelectedCounty("");  
+            setSelectedState(""); // Or handle this scenario as needed  
+        } else {  
+            setSelectedState(state);  
+        }  
+    };
+
+    const handleCountyChange = (e: SelectChangeEvent) => {
+        const id = e.target.value;
+        setSelectedCounty(id);
+    };
+
+    useEffect(() => {
+        if (window.innerWidth < 640) {
+            setIsMobileWidth(true);
+        } else {
+            setIsMobileWidth(false);
+        }
+    }, []);
+
     const onSubmit = async (data: TLoginSchema) => {
         try {
-            const resp = await authService.logIn(data);
-            console.log('loginResp ', resp);
+            const device = detectDevice(navigator);
+            const browser = detectBrowser(navigator);
+            const os = detectOS(navigator);
+            const location = await getLocation();
+            const ipaddress = location?.query;
+
+            const loginData = {
+                ...data,
+                device,
+                browser,
+                os,
+                ipaddress
+            };
+
+            const resp = await authService.logIn(loginData);
             clearErrorMessage();
             const authToken = resp?.access_token;
             if (authToken) localStorage.setItem('auth', authToken);
@@ -54,7 +116,6 @@ export default function Page() {
         } catch (error) {
             handleError(error);
             handleOpenSnack();
-            console.log('Login error', error);
         }
     };
 
@@ -68,63 +129,63 @@ export default function Page() {
     };
 
     return (
-        <>
-            <div className="text-3xl font-bold mb-6">Sign in</div>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <TextField
-                    {...register('email', { value: getValues('email') || '' })}
-                    error={Boolean(errors?.email?.message)}
-                    variant="outlined"
-                    label="Email"
-                    helperText={errors?.email?.message}
-                    onChange={(e) => setValue('email', e.target.value)}
-                />
-                <TextField
-                    {...register('password', { value: getValues('password') || '' })}
-                    error={Boolean(errors?.password?.message)}
-                    variant="outlined"
-                    label="Password"
-                    type="password"
-                    helperText={errors?.password?.message}
-                    onChange={(e) => setValue('password', e.target.value)}
-                />
-                <div className="text-lg">
-                    By accessing this site, you agree to the{' '}
-                    <a className="text-gray-400 hover:underline hover:text-gray-500" href="#">
-                        Terms of Service
-                    </a>
-                </div>
-                {/* <button
-          className="bg-sky-400 hover:bg-sky-500 text-white py-3 rounded-md"
-          type="submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Loading..." : "Sign In"}
-        </button> */}
-                <LoadingButton
-                    sx={{
-                        [`&:hover`]: { background: 'rgba(30, 41, 59, 0.8)' },
-                        background: 'rgb(30, 41, 59)',
-                        padding: '10px 20px',
-                    }}
-                    loading={isSubmitting}
-                    variant="contained"
-                    type="submit"
-                >
-                    Sign in
-                </LoadingButton>
-                <div className="flex justify-between">
-                    <div>
-                        Don&apos;t have an account?
-                        <Link className="text-gray-400 hover:underline hover:text-gray-500 mx-1" href="signup">
-                            Sign up
-                        </Link>
+        <div className={`flex flex-col items-center justify-center h-auto py-8 p-4 ${isMobile ? 'w-full' : 'w-[480px] mx-auto'}`}>
+            <div className="w-full bg-white rounded-lg shadow-md p-6">
+                <div className="text-3xl font-bold mb-6 text-center">Sign in</div>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <TextField
+                        {...register('email', { value: getValues('email') || '' })}
+                        error={Boolean(errors?.email?.message)}
+                        variant="outlined"
+                        label="Email"
+                        helperText={errors?.email?.message}
+                        onChange={(e) => setValue('email', e.target.value)}
+                        fullWidth
+                        size={isMobile ? "small" : "medium"}
+                    />
+                    <TextField
+                        {...register('password', { value: getValues('password') || '' })}
+                        error={Boolean(errors?.password?.message)}
+                        variant="outlined"
+                        label="Password"
+                        type="password"
+                        helperText={errors?.password?.message}
+                        onChange={(e) => setValue('password', e.target.value)}
+                        fullWidth
+                        size={isMobile ? "small" : "medium"}
+                    />
+                    <div className="text-sm sm:text-base">
+                        By accessing this site, you agree to the{' '}
+                        <a className="text-gray-400 hover:underline hover:text-gray-500" href="#">
+                            Terms of Service
+                        </a>
                     </div>
-                    <a className="text-gray-400 hover:underline hover:text-gray-500" href="#">
-                        Forgot password
-                    </a>
-                </div>
-            </form>
+                    <LoadingButton
+                        sx={{
+                            [`&:hover`]: { background: 'rgba(30, 41, 59, 0.8)' },
+                            background: 'rgb(30, 41, 59)',
+                            padding: isMobile ? '8px 16px' : '10px 20px',
+                            width: '100%',
+                        }}
+                        loading={isSubmitting}
+                        variant="contained"
+                        type="submit"
+                    >
+                        Sign in
+                    </LoadingButton>
+                    <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+                        <div>
+                            Don&apos;t have an account?
+                            <Link className="text-gray-400 hover:underline hover:text-gray-500 mx-1" href="signup">
+                                Sign up
+                            </Link>
+                        </div>
+                        <a className="text-gray-400 hover:underline hover:text-gray-500" href="#">
+                            Forgot password
+                        </a>
+                    </div>
+                </form>
+            </div>
 
             {errorMessage && (
                 <Snackbar
@@ -138,6 +199,6 @@ export default function Page() {
                     </Alert>
                 </Snackbar>
             )}
-        </>
+        </div>
     );
 }
