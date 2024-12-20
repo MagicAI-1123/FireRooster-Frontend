@@ -1,4 +1,5 @@
 import styles from "./authLayout.module.scss";
+import Image from 'next/image';
 
 export default function AuthLayout({
   children,
@@ -8,7 +9,13 @@ export default function AuthLayout({
   return (
     <div className={styles.authWrapper}>
       <div className={styles.authHeader}>
-        <img src={'/logo.png'}></img>
+        <Image 
+          src="/logo.png" 
+          alt="Logo"
+          width={150}  // adjust based on your logo size
+          height={50}  // adjust based on your logo size
+          priority
+        />
       </div>
       {children}
     </div>
